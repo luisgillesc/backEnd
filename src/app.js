@@ -15,15 +15,6 @@ app.use('/api/carts',routerCarts);
 
 const products = new Products(`${__dirname}/data/products.json`);
 
-app.post('/', async (req, res) => {
-    const newProduct = req.body;
-    let{title,price,description,category,thumbnails,status,code,stock} = newProduct;
-    const product = await products.addProduct(newProduct);
-    res.send(product);
-});
-    
-
-
 app.listen(port, () => {
     console.log("Servidor corriendo en el puerto",port);
 });
