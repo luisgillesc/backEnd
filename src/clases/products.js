@@ -13,11 +13,25 @@ class Products {
     }
 
     async updateProduct(productId, updatedProduct) {
-        
+        await this.getAllProducts();
+        const productIndex = this.productList.findIndex(product => product.id === productId);
+        if (productIndex !== -1) {
+            this.productList[productIndex] = { ...this.productList[productIndex], ...updatedProduct };
+            await fs.promises.writeFile(this.path, JSON.stringify({data: this.productList}));
+            return true;
+        }
+        return false;
     }
 
     async deleteProduct(productId) {
-        
+        await this.getAllProducts();
+        const productIndex = this.productList.findIndex(product => product.id === productId);
+        if (productIndex !== -1) {
+            this.productList.splice(productIndex, 1);
+            await fs.promises.writeFile(this.path, JSON.stringify({data: this.productList}));
+            return true;
+        }
+        return false;
     }
 
     async getAllProducts() {
