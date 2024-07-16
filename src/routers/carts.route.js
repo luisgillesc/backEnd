@@ -2,7 +2,7 @@ import { Router } from "express";
 import Cart from "../clases/carts.js";
 import { __dirname } from '../utils.js';
 
-const cartPath = new Products(`${__dirname}/data`);
+const cartPath = new Cart(`${__dirname}/data`);
 
 const router = Router();
 
