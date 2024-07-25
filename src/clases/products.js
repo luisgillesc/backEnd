@@ -39,5 +39,10 @@ class Products {
         this.productList = [...JSON.parse(allProducts).data];
         return this.productList;
     }
+
+    async findById(id) {
+        await this.getAllProducts();
+        return this.productList.find(product => product.id === id);
+    }
 }
 export default Products;

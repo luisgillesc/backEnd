@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
     const { id, cart } = await Cart.createCart(cartPath);
     res.json({ id, products: cart.cartItems });
   } catch (error) {
-    res.status(500).json({ message: "Error al crear un nuevo carrito" });
+    res.status(500).json({ message: "Error al crear un nuevo carrito" + error });
   }
 });
 
