@@ -7,13 +7,12 @@ class Cart {
   }
 
   static async createCart(cartPath) {
-    const newId = Date.now().toString();
-    const path = `${cartPath}/${newId}.json`;
+    const path = `${cartPath}/cart.json`;
     
     const newCart = new Cart(path);
     await fs.writeFile(path, JSON.stringify({ items: newCart.cartItems }));
     
-    return { id: newId, cart: newCart };
+    return { id: newCart.id, cart: newCart };
   }
 
   async addItemToCart(newItem) {
@@ -49,7 +48,8 @@ class Cart {
 
   async getAllItemsInCart() {
     const allItems = await fs.readFile(this.path, "utf-8");
-    this.cartItems = [...JSON.parse(allItems).items];
+    this.cartItems = JSON.parse(allItems).items;
+    this.id = JSON.parse(allItems).id;
     return this.cartItems;
   }
 }
