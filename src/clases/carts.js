@@ -7,7 +7,7 @@ class Cart {
   }
 
   static async createCart(cartPath) {
-    const path = `${cartPath}/cart.json`;
+    const path = `${cartPath}/cart.json`; 
     
     const newCart = new Cart(path);
     await fs.writeFile(path, JSON.stringify({ items: newCart.cartItems }));
