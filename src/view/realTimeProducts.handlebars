@@ -1,0 +1,57 @@
+{{! Extiende del layout principal }}
+{{#extend "main"}}
+  {{#content "body"}}
+    <h1>Productos en Tiempo Real</h1>
+    <ul id="product-list">
+      {{#each products}}
+        <li id="product-{{this._id}}">{{this.title}} - ${{this.price}} <button onclick="deleteProduct('{{this._id}}')">Eliminar</button></li>
+      {{/each}}
+    </ul>
+
+    <h2>Agregar Nuevo Producto</h2>
+    <form id="product-form">
+      <input type="text" id="title" placeholder="Título" required>
+      <input type="text" id="description" placeholder="Descripción" required>
+      <input type="number" id="price" placeholder="Precio" required>
+      <input type="text" id="category" placeholder="Categoría" required>
+      <input type="text" id="code" placeholder="Código" required>
+      <input type="number" id="stock" placeholder="Stock" required>
+      <button type="submit">Agregar</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      const productForm = document.getElementById('product-form');
+      const productList = document.getElementById('product-list');
+
+      productForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const productData = {
+          title: document.getElementById('title').value,
+          description: document.getElementById('description').value,
+          price: document.getElementById('price').value,
+          category: document.getElementById('category').value,
+          code: document.getElementById('code').value,
+          stock: document.getElementById('stock').value,
+        };
+
+        socket.emit('newProduct', productData);
+        productForm.reset();
+      });
+
+      socket.on('updateProductList', (products) => {
+        productList.innerHTML = '';
+        products.forEach(product => {
+          productList.innerHTML += `<li id="product-${product._id}">${product.title} - $${product.price} <button onclick="deleteProduct('${product._id}')">Eliminar</button></li>`;
+        });
+      });
+
+      function deleteProduct(productId) {
+        socket.emit('deleteProduct', productId);
+      }
+    </script>
+  {{/content}}
+{{/extend}}
