@@ -10,9 +10,54 @@ function generarIdAutogenerado() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
   }
 
-router.get('/', async(req, res) => {
-    const productList = await products.getAllProducts();
-    res.status(201).json({data: productList});
+  router.get('/', async (req, res) => {
+    try {
+        const { limit = 10, page = 1, sort, query } = req.query;
+
+        // Construir filtros de búsqueda
+        let filter = {};
+        if (query) {
+            filter = {
+                $or: [
+                    { category: query },
+                    { status: query === 'true' || query === 'false' ? query : '' },
+                ],
+            };
+        }
+
+        // Construir opciones de paginación y ordenamiento
+        const options = {
+            limit: parseInt(limit),
+            page: parseInt(page),
+            sort: sort === 'asc' ? { price: 1 } : sort === 'desc' ? { price: -1 } : {},
+            lean: true,
+        };
+
+        // Realizar la búsqueda con paginación y filtros
+        const products = await Product.paginate(filter, options);
+
+        // Crear el objeto de respuesta
+        const response = {
+            status: 'success',
+            payload: products.docs,
+            totalPages: products.totalPages,
+            prevPage: products.prevPage,
+            nextPage: products.nextPage,
+            page: products.page,
+            hasPrevPage: products.hasPrevPage,
+            hasNextPage: products.hasNextPage,
+            prevLink: products.hasPrevPage
+                ? `/api/products?limit=${limit}&page=${products.prevPage}&sort=${sort}&query=${query}`
+                : null,
+            nextLink: products.hasNextPage
+                ? `/api/products?limit=${limit}&page=${products.nextPage}&sort=${sort}&query=${query}`
+                : null,
+        };
+
+        res.json(response);
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: 'Error al obtener productos' });
+    }
 });
 
 router.get('/:pid', async (req, res) => {
