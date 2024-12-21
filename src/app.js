@@ -1,60 +1,31 @@
 import express from 'express';
-import routerProducts from './routers/products.route.js';
-import routerCarts from './routers/carts.route.js';
-import { __dirname } from './utils.js';
-import Products from './clases/products.js';
-import { Server } from 'socket.io';
-import { engine } from 'express-handlebars';
-import { createServer } from 'http';
-import path from 'path';
-
+import mongoose from 'mongoose';
+import productRouter from './routers/products.route.js';
+import cartRouter from './routers/carts.route.js';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './utils/swagger.js';
 
 const app = express();
-const port=8080;
+const PORT = 8080;
 
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/api/products',routerProducts);
-app.use('/api/carts',routerCarts);
-
-// Configuración de Handlebars
-app.engine('handlebars', engine());
-app.set('view engine', 'handlebars');
-app.set('views', '../src/view');
 
 // Conexión a MongoDB
-mongoose.connect('mongodb+srv://luisgillesc:1qaz2wsx3edc@coderback.wvpmo5m.mongodb.net/?retryWrites=true&w=majority&appName=CoderBack', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  }).then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('Failed to connect to MongoDB', err));
+mongoose.connect('mongodb://localhost:27017/ecommerce', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
-export const io = new Server(httpServer);
+// Rutas
+app.use('/api/products', productRouter);
+app.use('/api/carts', cartRouter);
 
-// Configurar Socket.IO
-io.on('connection', (socket) => {
-    console.log('New client connected');
-  
-    socket.on('newProduct', async (productData) => {
-      const newProduct = new Product(productData);
-      await newProduct.save();
-      const products = await Product.find().lean();
-      io.emit('updateProductList', products);
-    });
-  
-    socket.on('deleteProduct', async (productId) => {
-      await Product.findByIdAndDelete(productId);
-      const products = await Product.find().lean();
-      io.emit('updateProductList', products);
-    });
-  
-    socket.on('disconnect', () => {
-      console.log('Client disconnected');
-    });
-  });
+// Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-const products = new Products(`${__dirname}/data/products.json`);
-
-app.listen(port, () => {
-    console.log("Servidor corriendo en el puerto",port);
+// Iniciar servidor
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
