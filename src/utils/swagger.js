@@ -14,7 +14,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ['./routers/*.js'], // Ruta donde se definen las rutas con comentarios Swagger
+  apis: ['./src/routers/*.route.js'], // Ajusta la ruta para incluir los archivos .route.js
 };
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
